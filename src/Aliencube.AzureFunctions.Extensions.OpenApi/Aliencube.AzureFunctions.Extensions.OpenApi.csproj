@@ -9,7 +9,7 @@
     <Owners>Aliencube</Owners>
     <Authors>Justin Yoo</Authors>
     <Company>Aliencube Community</Company>
-    <Version>1.0.0</Version>
+    <Version>1.0.1-kaddy10</Version>
     <Title>Aliencube.AzureFunctions.Extensions.OpenApi</Title>
     <Product>Aliencube.AzureFunctions.Extensions.OpenApi</Product>
     <Summary>This package helps render Open API document and Swagger UI through Azure Functions endpoints.</Summary>
