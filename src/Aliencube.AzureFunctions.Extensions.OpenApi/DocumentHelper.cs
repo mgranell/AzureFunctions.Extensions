@@ -16,6 +16,9 @@ using Microsoft.OpenApi.Models;
 
 namespace Aliencube.AzureFunctions.Extensions.OpenApi
 {
+    using Newtonsoft.Json.Schema;
+    using Newtonsoft.Json.Serialization;
+
     /// <summary>
     /// This represents the helper entity for the <see cref="Document"/> class.
     /// </summary>
@@ -157,15 +160,33 @@ namespace Aliencube.AzureFunctions.Extensions.OpenApi
         /// <inheritdoc />
         public Dictionary<string, OpenApiSchema> GetOpenApiSchemas(List<MethodInfo> elements)
         {
+            var schemaGenerator =  new JsonSchemaGenerator();
+            schemaGenerator.ContractResolver = new EnumAsStringContractResolver();
+            schemaGenerator.UndefinedSchemaIdHandling = UndefinedSchemaIdHandling.UseTypeName;
+
+            var namingStrategy = new CamelCaseNamingStrategy();
+
             var requests = elements.SelectMany(p => p.GetCustomAttributes<OpenApiRequestBodyAttribute>(inherit: false))
                                    .Select(p => p.BodyType);
             var responses = elements.SelectMany(p => p.GetCustomAttributes<OpenApiResponseBodyAttribute>(inherit: false))
                                     .Select(p => p.BodyType);
             var types = requests.Union(responses)
                                 .Distinct();
-            var schemas = types.ToDictionary(p => p.Name, p => p.ToOpenApiSchema());
+            var schemas = types.ToDictionary(p => p.Name, p => p.ToOpenApiSchema(namingStrategy)); // schemaGenerator.Generate(p)
 
             return schemas;
+        }
+
+        private class EnumAsStringContractResolver : CamelCasePropertyNamesContractResolver
+        {
+            protected override JsonPrimitiveContract CreatePrimitiveContract(Type objectType)
+            {
+                return base.CreatePrimitiveContract(objectType);
+                if (objectType.BaseType == typeof(Enum))
+                {
+                    var t = objectType;
+                }
+            }
         }
 
         /// <inheritdoc />
